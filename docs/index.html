@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZeeSpec — Spec-Driven Development for the AI Era</title>
+  <meta name="description" content="ZeeSpec turns 60 structured questions across 6 dimensions into a complete system specification. Stop AI guessing. Start generating deterministic code.">
+  <meta name="keywords" content="ZeeSpec, AI specification, spec-driven development, system specification, Zachman framework, AI coding">
+  <meta property="og:title" content="ZeeSpec — Spec-Driven Development for the AI Era">
+  <meta property="og:description" content="Answer 60 questions. Leave AI no room to guess.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-canvas"></div>
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- Toast Notification -->
+<div class="copy-toast" id="copy-toast"></div>
+
+<!-- ════════════════════════════ NAV ════════════════════════════ -->
+<nav>
+  <div class="container nav-inner">
+    <div class="nav-logo">ZeeSpec</div>
+    <div class="nav-links" id="nav-links">
+      <a href="#problem">The Problem</a>
+      <a href="#dimensions">60 Questions</a>
+      <a href="#builder">Spec Builder</a>
+      <a href="#howitworks">How It Works</a>
+      <a href="#dimensions" class="nav-cta">Start Speccing</a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu">☰</button>
+  </div>
+</nav>
+
+<!-- ════════════════════════════ HERO ════════════════════════════ -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span></span>
+        Spec-Driven Development for the AI Era
+      </div>
+
+      <h1 class="hero-title">
+        Stop Guessing.<br>
+        <span class="highlight">Start Specifying.</span>
+      </h1>
+
+      <p class="hero-sub">
+        ZeeSpec turns <strong>60 structured questions</strong> across 6 dimensions into a complete system specification — 
+        leaving AI no room to guess, invent, or hallucinate.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="#dimensions" class="btn-primary">
+          <span>▶</span> Start Your Spec
+        </a>
+        <a href="#problem" class="btn-outline">
+          <span>↓</span> Learn the Method
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num" data-count="60"><span>60</span></div>
+          <div class="stat-label">Questions</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" data-count="6"><span>6</span></div>
+          <div class="stat-label">Dimensions</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">1h</div>
+          <div class="stat-label">Time Investment</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">Clarity for AI</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ PROBLEM ════════════════════════════ -->
+<section id="problem" class="section-gap">
+  <div class="container">
+    <div class="section-label fade-up">The Root Problem</div>
+    <h2 class="section-title fade-up fade-up-delay-1">AI fills what you don't define</h2>
+    <p class="section-sub fade-up fade-up-delay-2">
+      User stories were designed for humans. Humans compensate for gaps with judgment. 
+      AI does not — it completes patterns. And when the pattern is vague, the output becomes <em>plausible, not correct</em>.
+    </p>
+
+    <div class="problem-grid">
+      <!-- Bad card -->
+      <div class="problem-card card-bad fade-up fade-up-delay-1">
+        <div class="problem-card-header">
+          <div class="dot"></div>
+          ❌ User Story (Vague Input)
+        </div>
+        <div class="problem-card-body">
+          <p class="story-quote">
+            "As a library member, I want to cancel my book loan so I can return it early."
+          </p>
+          <div class="story-issue">
+            <span class="icon">✗</span>
+            <span>AI might simply <strong>delete the Loan record</strong> — no audit trail, no history.</span>
+          </div>
+          <div class="story-issue">
+            <span class="icon">✗</span>
+            <span>No mention of late fees, so AI ignores the business rule blocking checkout.</span>
+          </div>
+          <div class="story-issue">
+            <span class="icon">✗</span>
+            <span>No data retention rule — AI doesn't know loans must be archived 7 years.</span>
+          </div>
+          <div class="story-issue">
+            <span class="icon">✗</span>
+            <span>Silent assumptions become technical debt you discover months later.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Good card -->
+      <div class="problem-card card-good fade-up fade-up-delay-2">
+        <div class="problem-card-header">
+          <div class="dot"></div>
+          ✅ ZeeSpec (Precise Input)
+        </div>
+        <div class="problem-card-body">
+          <div class="spec-line">
+            <div class="spec-item">
+              <span class="spec-tag tag-what">WHAT</span>
+              <span>A Loan status can only be <code>CANCELLED</code> if it has no associated late fees outstanding.</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-tag tag-who">WHO</span>
+              <span>Only the Member who owns the loan or Library Staff can cancel it.</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-tag tag-why">WHY</span>
+              <span>All financial transactions must be archived for 7 years — cancellation updates status, never deletes.</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-tag tag-how">HOW</span>
+              <span>On cancel: set status → CANCELLED, write audit log entry, trigger late-fee check. Never hard delete.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-box fade-up">
+      <div class="insight-icon">💡</div>
+      <div class="insight-text">
+        <strong>The Zachman Framework, modernized.</strong> ZeeSpec applies the 5W1H model (What, Where, When, Who, Why, How) 
+        to create a coordinate system for your system's soul. 
+        By covering all six dimensions, you ensure AI has <strong>complete bounds</strong> — 
+        leaving no dark corners where hallucinations can breed.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ 60 QUESTIONS ════════════════════════════ -->
+<section id="dimensions" class="section-gap">
+  <div class="container">
+    <div class="section-label fade-up">Interactive Explorer</div>
+    <h2 class="section-title fade-up fade-up-delay-1">The 60 Questions</h2>
+    <p class="section-sub fade-up fade-up-delay-2">
+      Click any dimension to expand all 10 questions. Check them off as you think through your answers — 
+      your progress saves automatically.
+    </p>
+
+    <!-- Dimension Grid (built by JS) -->
+    <div id="dim-grid" class="dim-grid" role="list"></div>
+
+    <!-- Overall Progress Ring -->
+    <div class="progress-ring-wrap fade-up">
+      <div class="progress-ring-container">
+        <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
+          <defs>
+            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#6366f1"/>
+              <stop offset="50%"  stop-color="#8b5cf6"/>
+              <stop offset="100%" stop-color="#10b981"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="55" cy="55" r="45"/>
+          <circle class="ring-fill" id="ring-fill" cx="55" cy="55" r="45"/>
+          <text class="ring-text" x="55" y="50">
+            <tspan class="ring-num" id="ring-num" x="55" dy="0">0</tspan>
+            <tspan class="ring-denom" x="55" dy="18">/ 60</tspan>
+          </text>
+        </svg>
+        <div class="ring-info">
+          <h3>Questions Explored</h3>
+          <p>
+            Check off each question as you think through your system. 
+            When you hit 60, your spec is complete and AI has no room to guess.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ SPEC BUILDER ════════════════════════════ -->
+<section id="builder" class="section-gap">
+  <div class="container">
+    <div class="section-label fade-up">Interactive Spec Builder</div>
+    <h2 class="section-title fade-up fade-up-delay-1">Write Your Spec Here</h2>
+    <p class="section-sub fade-up fade-up-delay-2">
+      Type your answers directly — they auto-save to your browser. 
+      When you're done, hit <strong>Copy Spec</strong> and paste it into any AI coding assistant.
+    </p>
+
+    <div class="builder-layout fade-up">
+      <!-- Tabs -->
+      <div class="builder-tabs" id="builder-tabs"></div>
+
+      <!-- Panels -->
+      <div class="builder-panels" id="builder-panels"></div>
+    </div>
+
+    <div class="builder-actions fade-up">
+      <button class="btn-copy" id="btn-copy-spec">
+        📋 Copy Full Spec
+      </button>
+      <button class="btn-clear" id="btn-clear-spec">
+        🗑 Clear All
+      </button>
+      <button class="btn-outline" id="toggle-preview" style="border-radius:10px; padding:11px 22px; font-size:0.9rem;">
+        👁 Show Preview
+      </button>
+    </div>
+
+    <!-- Live Preview (hidden by default) -->
+    <div class="spec-preview" id="spec-preview" style="display:none; margin-top:24px;">
+      <div class="preview-header">
+        <div class="preview-title">
+          <span class="preview-dot"></span>
+          Live Spec Preview — AGENTS.md
+        </div>
+        <button class="btn-copy" style="padding:7px 14px; font-size:0.8rem;" onclick="copySpec()">Copy</button>
+      </div>
+      <div class="preview-body" id="preview-body">
+        <span class="preview-empty">Your spec will appear here as you fill in answers...</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ HOW IT WORKS ════════════════════════════ -->
+<section id="howitworks" class="section-gap">
+  <div class="container">
+    <div class="section-label fade-up text-center">The Workflow</div>
+    <h2 class="section-title text-center fade-up fade-up-delay-1">From spec to system in 3 steps</h2>
+    <p class="section-sub text-center fade-up fade-up-delay-2">
+      Use the spec builder above, or use the CLI tool to scaffold your .spec/ folder and generate AGENTS.md.
+    </p>
+
+    <div class="steps-row">
+      <!-- Step 1 -->
+      <div class="step-card fade-up fade-up-delay-1">
+        <div class="step-num">1</div>
+        <span class="step-icon">🏗️</span>
+        <div class="step-title">Initialize</div>
+        <p class="step-desc">
+          Scaffold a <code>.spec/</code> folder with 8 descriptive template files: 
+          what.md, how.md, who.md, when.md, where.md, why.md, upstream.md, downstream.md.
+        </p>
+        <div class="step-code" data-copy="npx spec-cli init">
+          <span>npx spec-cli init</span>
+          <span class="copy-icon">📋</span>
+        </div>
+      </div>
+
+      <div class="step-arrow">→</div>
+
+      <!-- Step 2 -->
+      <div class="step-card fade-up fade-up-delay-2">
+        <div class="step-num">2</div>
+        <span class="step-icon">✍️</span>
+        <div class="step-title">Describe in Plain English</div>
+        <p class="step-desc">
+          Open the .md files and answer the 60 questions in plain English — or use the Spec Builder above. 
+          No schemas, no DSLs. Just describe your system to a smart colleague.
+        </p>
+        <div class="step-code" style="cursor:default">
+          <span>.spec/what.md, who.md, why.md...</span>
+        </div>
+      </div>
+
+      <div class="step-arrow">→</div>
+
+      <!-- Step 3 -->
+      <div class="step-card fade-up fade-up-delay-3">
+        <div class="step-num">3</div>
+        <span class="step-icon">🚀</span>
+        <div class="step-title">Generate & Build</div>
+        <p class="step-desc">
+          Generate your master prompt. Paste into Cursor, Claude Code, or Windsurf. 
+          Watch AI generate a complete, aligned system — deterministically, not probabilistically.
+        </p>
+        <div class="step-code" data-copy="npx spec-cli generate">
+          <span>npx spec-cli generate</span>
+          <span class="copy-icon">📋</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ MANIFESTO ════════════════════════════ -->
+<section id="manifesto" class="section-gap">
+  <div class="container">
+    <div class="manifesto-inner">
+      <div class="section-label fade-up">The Rule</div>
+      <p class="manifesto-quote fade-up fade-up-delay-1">
+        For every question — if you can't answer it, <span class="hl">your system is undefined.</span>
+        If you skip it, <span class="hl">AI will decide for you.</span>
+      </p>
+
+      <div class="manifesto-rule">
+        <div class="rule-card fade-up fade-up-delay-1">
+          <div class="rule-cond">IF you can't answer it →</div>
+          <div class="rule-result">Your system is undefined</div>
+        </div>
+        <div class="rule-card fade-up fade-up-delay-2">
+          <div class="rule-cond">IF you skip it →</div>
+          <div class="rule-result">AI will decide for you</div>
+        </div>
+        <div class="rule-card fade-up fade-up-delay-3">
+          <div class="rule-cond">IF you answer it clearly →</div>
+          <div class="rule-result">AI becomes deterministic</div>
+        </div>
+      </div>
+
+      <p class="section-sub text-center fade-up" style="max-width:600px; margin:0 auto 40px;">
+        Most specs <em>describe</em> systems. ZeeSpec <strong>forces decisions</strong>. 
+        Once decisions are explicit, AI stops being creative — it starts being correct.
+      </p>
+
+      <div class="fade-up" style="display:flex; justify-content:center;">
+        <a href="#dimensions" class="btn-primary" style="font-size:1.05rem; padding:16px 36px;">
+          🎯 Answer the 60 Questions
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ FOOTER ════════════════════════════ -->
+<footer>
+  <div class="container footer-inner">
+    <div>
+      <div class="footer-logo">ZeeSpec</div>
+      <div class="footer-tagline">Spec-Driven Development for the AI Era</div>
+    </div>
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a href="#hero">Home</a>
+      <a href="#problem">The Problem</a>
+      <a href="#dimensions">60 Questions</a>
+      <a href="#builder">Spec Builder</a>
+      <a href="https://github.com" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
