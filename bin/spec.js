@@ -3,6 +3,8 @@
 import { program } from 'commander';
 import { initCommand } from '../src/commands/init.js';
 import { generateCommand } from '../src/commands/generate.js';
+import { validateCommand } from '../src/commands/validate.js';
+import { statusCommand } from '../src/commands/status.js';
 
 program
     .name('spec')
@@ -18,5 +20,15 @@ program
     .command('generate')
     .description('Assemble .spec files into a master prompt (AGENTS.md and clipboard).')
     .action(generateCommand);
+
+program
+    .command('validate')
+    .description('Check if spec files are complete (no placeholders).')
+    .action(validateCommand);
+
+program
+    .command('status')
+    .description('Show completion status of each spec file.')
+    .action(statusCommand);
 
 program.parse(process.argv);
