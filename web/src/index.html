@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZeeSpec — Build Your Project Spec</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="./coi-serviceworker.js"></script>
+</head>
+<body>
+
+  <!-- ── HEADER ──────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">ZeeSpec</span>
+        <span class="logo-sub">Project Specification Builder</span>
+      </div>
+      <div class="header-right">
+        <a href="../" class="docs-link" title="ZeeSpec Tutorial & Docs">📖 Docs &amp; Tutorial</a>
+        <div class="header-model" id="headerModelStatus">
+          <span class="model-dot idle" id="modelDot"></span>
+          <span id="modelLabel">No model loaded</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── SETUP SCREEN ─────────────────────────────────────────── -->
+  <div id="setupScreen" class="screen active">
+    <div class="setup-hero">
+      <h1>Build your project spec in <span class="accent">60 questions</span></h1>
+      <p class="hero-sub">Answer questions across 6 dimensions of your system. The AI synthesizes your answers into a structured AGENTS.md spec — fully private, runs entirely in your browser.</p>
+
+      <div class="setup-card">
+        <div class="setup-section">
+          <label class="section-label">Choose AI Model <span class="badge">WebGPU · runs locally</span></label>
+          <select id="modelSelect" class="model-select">
+            <!-- populated by JS -->
+          </select>
+          <p class="hint">First load downloads the model (~1–2 GB). Cached in your browser after that.</p>
+        </div>
+
+        <div id="loadProgress" class="load-progress hidden">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <p class="progress-text" id="progressText">Initializing…</p>
+        </div>
+
+        <div class="setup-actions">
+          <button id="loadModelBtn" class="btn btn-primary btn-lg">Load Model &amp; Start</button>
+          <button id="skipAiBtn" class="btn btn-ghost btn-lg">Skip AI — just assemble my answers</button>
+        </div>
+
+        <div id="loadError" class="error-banner hidden"></div>
+      </div>
+
+      <div class="dimensions-preview">
+        <div class="dim-chip" style="--c:#3B82F6">🔵 WHAT</div>
+        <div class="dim-chip" style="--c:#10B981">🟢 WHERE</div>
+        <div class="dim-chip" style="--c:#F59E0B">🟡 WHEN</div>
+        <div class="dim-chip" style="--c:#F97316">🟠 WHO</div>
+        <div class="dim-chip" style="--c:#EF4444">🔴 WHY</div>
+        <div class="dim-chip" style="--c:#8B5CF6">🟣 HOW</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WIZARD SCREEN ────────────────────────────────────────── -->
+  <div id="wizardScreen" class="screen">
+    <!-- Sidebar -->
+    <aside class="wizard-sidebar">
+      <div class="sidebar-dims" id="sidebarDims">
+        <!-- populated by JS -->
+      </div>
+      <div class="sidebar-footer">
+        <div class="overall-progress">
+          <span id="overallProgressLabel">0 / 60 answered</span>
+          <div class="progress-bar-wrap slim">
+            <div class="progress-bar" id="overallProgressBar"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="wizard-main">
+      <div class="dim-header" id="dimHeader">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="questions-list" id="questionsList">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="dim-actions">
+        <button id="synthesizeBtn" class="btn btn-primary synth-btn hidden">
+          <span class="synth-icon">✨</span>
+          <span id="synthBtnLabel">Synthesize with AI</span>
+        </button>
+        <div id="synthStatus" class="synth-status hidden"></div>
+        <div class="nav-buttons">
+          <button id="prevDimBtn" class="btn btn-ghost">← Previous</button>
+          <button id="nextDimBtn" class="btn btn-primary">Next →</button>
+        </div>
+      </div>
+
+      <div id="synthPreview" class="synth-preview hidden">
+        <div class="synth-preview-header">
+          <span>AI-synthesized spec section</span>
+          <button id="editSynthBtn" class="btn btn-ghost btn-sm">Edit</button>
+        </div>
+        <div id="synthPreviewContent" class="synth-preview-content"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ── OUTPUT SCREEN ────────────────────────────────────────── -->
+  <div id="outputScreen" class="screen">
+    <div class="output-inner">
+      <div class="output-header">
+        <h2>Your Project Spec is Ready</h2>
+        <p class="output-sub">Copy this into Claude Code, Cursor, or any AI agent to generate your project.</p>
+        <div class="output-actions">
+          <button id="copySpecBtn" class="btn btn-primary">Copy to Clipboard</button>
+          <button id="downloadSpecBtn" class="btn btn-ghost">Download AGENTS.md</button>
+          <button id="startOverBtn" class="btn btn-ghost">Start Over</button>
+        </div>
+      </div>
+      <div class="output-stats" id="outputStats"></div>
+      <div class="spec-output" id="specOutput"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
