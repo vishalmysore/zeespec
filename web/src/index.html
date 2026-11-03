@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ZeeSpec — Build Your Project Spec</title>
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./epic/epic.css" />
   <script src="./coi-serviceworker.js"></script>
 </head>
 <body>
@@ -17,6 +18,10 @@
         <span class="logo-text">ZeeSpec</span>
         <span class="logo-sub">Project Specification Builder</span>
       </div>
+      <nav class="app-nav">
+        <a href="#" id="navBuilder" class="active">Spec Builder</a>
+        <a href="#epic" id="navEpic">EPIC Score</a>
+      </nav>
       <div class="header-right">
         <a href="../" class="docs-link" title="ZeeSpec Tutorial & Docs">📖 Docs &amp; Tutorial</a>
         <div class="header-model" id="headerModelStatus">
@@ -126,11 +131,131 @@
         <div class="output-actions">
           <button id="copySpecBtn" class="btn btn-primary">Copy to Clipboard</button>
           <button id="downloadSpecBtn" class="btn btn-ghost">Download AGENTS.md</button>
+          <button id="epicScoreBtn" class="btn btn-ghost">Score with EPIC →</button>
           <button id="startOverBtn" class="btn btn-ghost">Start Over</button>
         </div>
       </div>
       <div class="output-stats" id="outputStats"></div>
       <div class="spec-output" id="specOutput"></div>
+    </div>
+  </div>
+
+  <!-- ── EPIC SCORE SCREEN ────────────────────────────────────── -->
+  <div id="epicScreen" class="screen">
+    <div class="epic-wrap">
+      <div class="epic-intro">
+        <h1>EPIC Score</h1>
+        <p class="sub">Grade a spec the way a coding agent will read it: 40 practices, 10 dimensions, a score out of 30,
+          from <a id="paperLink" target="_blank" rel="noopener">“The EPIC Framework for Spec-Driven Development”</a>.
+          In the paper's 114 repos, top-scoring specs went with far fewer bug-fix commits (11.8% vs 20.4%). Nothing leaves your browser.</p>
+      </div>
+
+      <section class="panel" id="epicInput">
+        <nav class="tabs" role="tablist">
+          <button class="tab active" data-tab="builder">From builder</button>
+          <button class="tab" data-tab="github">GitHub repo</button>
+          <button class="tab" data-tab="paste">Paste</button>
+          <button class="tab" data-tab="upload">Upload files</button>
+          <button class="tab" data-tab="samples">Samples</button>
+        </nav>
+
+        <div class="tabpane active" data-pane="builder">
+          <div id="builderEmpty">
+            <p class="hint">No spec built yet. Answer the questions in the <a href="#">Spec Builder</a> and click <b>Generate Spec</b>, then score it here — or use one of the other tabs.</p>
+          </div>
+          <div id="builderReady" class="row" hidden>
+            <p class="hint">Your ZeeSpec spec is ready (<span id="builderWords"></span>).</p>
+            <button class="btn btn-primary" id="builderGo">Score my spec</button>
+          </div>
+        </div>
+
+        <div class="tabpane" data-pane="github">
+          <form id="ghForm" class="row">
+            <input id="ghInput" placeholder="owner/repo  or  https://github.com/owner/repo/tree/main/specs" autocomplete="off" />
+            <button class="btn btn-primary" type="submit">Find specs</button>
+          </form>
+          <p class="hint">Finds spec-kit (<code>specs/*/spec.md</code>), Kiro (<code>.kiro/specs</code>), ZeeSpec (<code>.spec/*.md</code>), <code>AGENTS.md</code>, PRDs, plans and task lists.</p>
+          <div id="ghList"></div>
+        </div>
+
+        <div class="tabpane" data-pane="paste">
+          <div class="pastegrid">
+            <label>spec.md <span class="muted">— what &amp; why</span><textarea id="pSpec" spellcheck="false" placeholder="# Feature spec…"></textarea></label>
+            <label>plan.md <span class="muted">— how (optional)</span><textarea id="pPlan" spellcheck="false" placeholder="# Implementation plan…"></textarea></label>
+            <label>tasks.md <span class="muted">— work (optional)</span><textarea id="pTasks" spellcheck="false" placeholder="- [ ] T001 …"></textarea></label>
+          </div>
+          <button class="btn btn-primary" id="pasteGo">Score</button>
+        </div>
+
+        <div class="tabpane" data-pane="upload">
+          <label class="drop" id="drop">
+            <input type="file" id="fileIn" multiple accept=".md,.markdown,.txt" />
+            <strong>Drop .md files here</strong> or click to choose. Kinds (spec / plan / tasks) are detected from file names.
+          </label>
+        </div>
+
+        <div class="tabpane" data-pane="samples">
+          <p class="hint">Same fictional product, written two ways.</p>
+          <div class="row" id="sampleBtns"></div>
+        </div>
+      </section>
+
+      <section id="epicResults" hidden>
+        <div class="scoreband panel">
+          <div class="total">
+            <div class="num"><span id="totalNum">0</span><span class="of">/30</span></div>
+            <div class="tier" id="tier"></div>
+            <p class="tiernote" id="tierNote"></p>
+            <p class="docs" id="docList"></p>
+          </div>
+          <svg id="radar" viewBox="0 0 360 360" role="img" aria-label="EPIC dimension radar"></svg>
+          <div class="cats" id="cats"></div>
+        </div>
+
+        <div class="panel judge">
+          <div class="judgehead">
+            <div>
+              <h2>On-device AI judge <span class="pill">optional</span></h2>
+              <p class="hint">Rules find evidence fast; a local LLM (WebGPU) re-reads each dimension against the paper’s 0–3 rubric and suggests one fix. Final score = rounded mean of rules and judge. Uses the builder's model if one is already loaded.</p>
+            </div>
+            <div class="row">
+              <select id="epicModel"></select>
+              <button class="btn btn-ghost" id="judgeBtn">Load &amp; judge</button>
+            </div>
+          </div>
+          <div class="progress" id="judgeProg" hidden><div></div><span></span></div>
+        </div>
+
+        <h2 class="sect">Dimensions</h2>
+        <div class="dims" id="dims"></div>
+
+        <h2 class="sect">Line findings <span class="muted" id="lintCount"></span></h2>
+        <div class="lints" id="lints"></div>
+
+        <h2 class="sect">Share &amp; fix</h2>
+        <div class="share panel">
+          <div>
+            <h3>README badge</h3>
+            <div class="badgeprev" id="badgePrev"></div>
+            <pre id="badgeMd"></pre>
+            <button class="btn btn-ghost" data-copy="badgeMd">Copy badge</button>
+          </div>
+          <div>
+            <h3>Fix-it prompt for your coding agent</h3>
+            <p class="hint">Paste into Claude Code, Cursor or Copilot to raise the score. It never asks the agent to invent facts — gaps become <code>[NEEDS CLARIFICATION]</code>.</p>
+            <pre id="fixPrompt" class="tall"></pre>
+            <div class="row">
+              <button class="btn btn-ghost" data-copy="fixPrompt">Copy prompt</button>
+              <button class="btn btn-ghost" id="dlReport">Download report.md</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="foot">
+        Scoring is a heuristic re-implementation of the EPIC rubric, not the authors’ tool; practice wording is paraphrased.
+        Paper: Claudino et al., arXiv:2610.07534 (Oct 2026). Findings in the paper are correlational.
+      </footer>
     </div>
   </div>
 

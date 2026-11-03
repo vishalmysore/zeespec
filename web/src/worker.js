@@ -18,7 +18,7 @@ async function disposeCurrent() {
 }
 
 self.onmessage = async (e) => {
-  const { action, modelId, messages, systemPrompt, gen } = e.data
+  const { action, modelId, messages, systemPrompt, maxTokens, gen } = e.data
 
   if (action === 'load') {
     loadAborted = false
@@ -85,7 +85,7 @@ self.onmessage = async (e) => {
           { role: 'system', content: systemPrompt },
           ...messages,
         ],
-        max_tokens:         2048,
+        max_tokens:         maxTokens ?? 2048,
         temperature:        0.2,
         repetition_penalty: 1.1,
       })

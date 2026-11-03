@@ -1,5 +1,6 @@
 import { DIMENSIONS } from './dimensions.js'
 import { WEBLLM_MODELS, loadModel, getModelStatus, cancelLoad, generate } from './llm.js'
+import { initEpic, refreshBuilderPane, scoreBuilderSpec } from './epic/ui.js'
 
 // ── State ──────────────────────────────────────────────────────
 const state = {
@@ -7,6 +8,7 @@ const state = {
   currentDim:   0,
   answers:      {},   // { [dimId]: { [qIdx]: string } }
   synthesized:  {},   // { [dimId]: string }
+  builtSpec:    '',   // last generated AGENTS.md, scored by the EPIC tab
 }
 
 // Initialize answers map
@@ -19,6 +21,10 @@ DIMENSIONS.forEach(d => {
 const setupScreen   = document.getElementById('setupScreen')
 const wizardScreen  = document.getElementById('wizardScreen')
 const outputScreen  = document.getElementById('outputScreen')
+const epicScreen    = document.getElementById('epicScreen')
+const navBuilder    = document.getElementById('navBuilder')
+const navEpic       = document.getElementById('navEpic')
+let builderScreen   = setupScreen   // screen to return to from the EPIC tab
 
 const modelSelect   = document.getElementById('modelSelect')
 const loadModelBtn  = document.getElementById('loadModelBtn')
@@ -48,6 +54,7 @@ const overallProgressBar   = document.getElementById('overallProgressBar')
 const copySpecBtn     = document.getElementById('copySpecBtn')
 const downloadSpecBtn = document.getElementById('downloadSpecBtn')
 const startOverBtn    = document.getElementById('startOverBtn')
+const epicScoreBtn    = document.getElementById('epicScoreBtn')
 const specOutput      = document.getElementById('specOutput')
 const outputStats     = document.getElementById('outputStats')
 
@@ -115,9 +122,26 @@ function startWizard() {
 }
 
 function showScreen(el) {
-  for (const s of [setupScreen, wizardScreen, outputScreen]) s.classList.remove('active')
+  for (const s of [setupScreen, wizardScreen, outputScreen, epicScreen]) s.classList.remove('active')
   el.classList.add('active')
+  if (el !== epicScreen) {
+    builderScreen = el
+    if (location.hash === '#epic') history.pushState(null, '', location.pathname + location.search)
+  }
+  navBuilder.classList.toggle('active', el !== epicScreen)
+  navEpic.classList.toggle('active', el === epicScreen)
 }
+
+// ── Routing: #epic shows the EPIC Score tab, anything else the builder ──
+function route() {
+  if (location.hash === '#epic') {
+    refreshBuilderPane()
+    showScreen(epicScreen)
+  } else {
+    showScreen(builderScreen)
+  }
+}
+window.addEventListener('hashchange', route)
 
 function buildSidebar() {
   sidebarDims.innerHTML = ''
@@ -394,6 +418,7 @@ function buildSpec() {
 
 function showOutput() {
   const spec = buildSpec()
+  state.builtSpec = spec
   specOutput.textContent = spec
 
   // Stats
@@ -429,6 +454,12 @@ downloadSpecBtn.addEventListener('click', () => {
   URL.revokeObjectURL(url)
 })
 
+epicScoreBtn.addEventListener('click', () => {
+  history.pushState(null, '', '#epic')
+  route()
+  scoreBuilderSpec()
+})
+
 startOverBtn.addEventListener('click', () => {
   if (!confirm('Start over? All answers will be cleared.')) return
   DIMENSIONS.forEach(d => {
@@ -436,7 +467,18 @@ startOverBtn.addEventListener('click', () => {
     state.synthesized[d.id] = ''
   })
   state.currentDim = 0
+  state.builtSpec  = ''
   state.aiEnabled  = getModelStatus().status === 'ready'
   showScreen(setupScreen)
   setupScreen.classList.add('active')
 })
+
+// ── EPIC Score tab ─────────────────────────────────────────────
+initEpic({
+  getBuilderSpec: () => state.builtSpec,
+  onModelStatus: (status, label) => {
+    setModelStatus(status, label)
+    if (status === 'ready') state.aiEnabled = true
+  },
+})
+route()

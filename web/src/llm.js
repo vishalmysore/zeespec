@@ -84,7 +84,7 @@ export function loadModel(modelId, onProgress) {
   })
 }
 
-export async function generate(systemPrompt, userContent) {
+export async function generate(systemPrompt, userContent, maxTokens) {
   if (_status !== 'ready' || !_worker) {
     throw new Error('No model loaded.')
   }
@@ -96,6 +96,7 @@ export async function generate(systemPrompt, userContent) {
       action: 'generate',
       systemPrompt,
       messages: [{ role: 'user', content: userContent }],
+      maxTokens,
       gen: _genCounter,
     })
   })

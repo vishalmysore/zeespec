@@ -31,6 +31,25 @@ Reads all the files in `.spec/`, assembles a master prompt, and:
 1. Writes it to `AGENTS.md` in your project root.
 2. Copies it to your clipboard.
 
+### `spec score`
+Scores your spec against the [EPIC framework for spec-driven development](https://arxiv.org/abs/2610.07534):
+40 practices across 10 quality dimensions, a total out of 30. In the paper's study of 114 repos, the top band
+(23 or more) spent 11.8% of commits on bug fixes versus 20.4% for the bottom band (18 or less).
+
+```bash
+spec score                      # scores .spec/ and AGENTS.md
+spec score specs/ --min 23      # exit code 2 below the top band, for CI
+spec score --json
+```
+
+The same scorer runs in the web app's **EPIC Score** tab
+([vishalmysore.github.io/zeespec/app/#epic](https://vishalmysore.github.io/zeespec/app/#epic)). It scores the spec you
+just built, a public GitHub repo (Spec Kit, Kiro, ZeeSpec or `AGENTS.md` layouts), uploaded files or pasted text, shows
+per-dimension evidence and vague lines, and gives you a README badge and a fix-it prompt for your coding agent.
+An optional local model (WebGPU) can re-judge each dimension and rewrite weak lines.
+
+The practice wording is a paraphrase of the paper and the scoring is a heuristic version of its rubric, not the authors' tool.
+
 ## Workflow
 
 1. **Init**: Run `spec init` to get the templates.
