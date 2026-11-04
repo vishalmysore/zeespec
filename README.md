@@ -50,6 +50,8 @@ An optional local model (WebGPU) can re-judge each dimension and rewrite weak li
 
 The practice wording is a paraphrase of the paper and the scoring is a heuristic version of its rubric, not the authors' tool.
 
+Walkthrough with screenshots: [How Good Is Your Spec?](docs/epic/epic-score-article.md)
+
 ## Workflow
 
 1. **Init**: Run `spec init` to get the templates.
