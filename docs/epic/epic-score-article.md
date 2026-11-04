@@ -1,8 +1,6 @@
-# How Good Is Your Spec? Scoring It the Way a Coding Agent Reads It
+# How Bad Is Your Spec? Scoring Specs for AI Coding Agents
 
-*ZeeSpec now has an EPIC Score tab and a `spec score` command. They grade a spec against 40 published practices, entirely in your browser or terminal.*
-
-![ZeeSpec EPIC Score tab](images/04-epic-tab-from-builder.png)
+*In a study of 114 spec-driven repos, the projects with the best specs spent 11.8% of their commits fixing bugs. The projects with the worst specs spent 20.4%. If a coding agent builds from your spec, here is how to see which group it falls into, and what to fix.*
 
 ## The problem
 
@@ -31,6 +29,10 @@ Each dimension is scored 0–3, so the total is out of 30. The paper's bands are
 The paper gives a standard but no tool. Checking 40 practices by hand on every spec isn't practical.
 
 ## The solution: score the spec the way you build it
+
+**EPIC Score** turns the paper's 40 practices into an automated check. It runs entirely in your browser or terminal and is free and open source. It ships as a tab and a command in ZeeSpec, an open-source spec builder for AI coding agents.
+
+![ZeeSpec EPIC Score tab](images/04-epic-tab-from-builder.png)
 
 ZeeSpec already helps you *write* a spec through 60 questions across six dimensions (What, Where, When, Who, Why, How). The new **EPIC Score** tab *grades* the spec, so the two steps sit together on one page: build, score, fix, score again.
 
