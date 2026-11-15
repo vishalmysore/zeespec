@@ -74,6 +74,8 @@ cd web && npm run selftest   # checks every task the way the paper validates its
 
 Scores are not directly comparable with the paper (291 Python tasks, agents with tools).
 
+Walkthrough with screenshots: [AI Coding Agents Test the Code, Not the Spec](docs/specguard/specguard-article.md)
+
 ## Workflow
 
 1. **Init**: Run `spec init` to get the templates.
