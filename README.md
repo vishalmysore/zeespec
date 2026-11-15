@@ -74,7 +74,7 @@ cd web && npm run selftest   # checks every task the way the paper validates its
 
 Scores are not directly comparable with the paper (291 Python tasks, agents with tools).
 
-Walkthrough with screenshots: [AI Coding Agents Write Tests That Bless Bugs](docs/specguard/specguard-article.md)
+Walkthrough with screenshots: [SpecGuard: When AI Coding Agents Write Tests That Approve Bugs](docs/specguard/specguard-article.md)
 
 ## Workflow
 

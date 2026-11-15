@@ -1,4 +1,4 @@
-# AI Coding Agents Write Tests That Bless Bugs
+# SpecGuard: When AI Coding Agents Write Tests That Approve Bugs
 
 *Ask a coding agent to write checks for a requirement and it will often copy what the existing code does instead. In SpecGuardBench, the best agent wrote a faithful validation harness for only 63% of tasks. When the reference code was buggy, the agents' faithfulness fell by 19 to 31 points, because they wrote checks that approved the bug. Here is a free, in-browser way to test any model for this.*
 
