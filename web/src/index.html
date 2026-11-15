@@ -6,6 +6,7 @@
   <title>ZeeSpec — Build Your Project Spec</title>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./epic/epic.css" />
+  <link rel="stylesheet" href="./specguard/specguard.css" />
   <script src="./coi-serviceworker.js"></script>
 </head>
 <body>
@@ -21,6 +22,7 @@
       <nav class="app-nav">
         <a href="#" id="navBuilder" class="active">Spec Builder</a>
         <a href="#epic" id="navEpic">EPIC Score</a>
+        <a href="#specguard" id="navSpecGuard">SpecGuard</a>
       </nav>
       <div class="header-right">
         <a href="../" class="docs-link" title="ZeeSpec Tutorial & Docs">📖 Docs &amp; Tutorial</a>
@@ -255,6 +257,72 @@
       <footer class="foot">
         Scoring is a heuristic re-implementation of the EPIC rubric, not the authors’ tool; practice wording is paraphrased.
         Paper: Claudino et al., arXiv:2610.07534 (Oct 2026). Findings in the paper are correlational.
+      </footer>
+    </div>
+  </div>
+
+  <!-- ── SPECGUARD SCREEN ─────────────────────────────────────── -->
+  <div id="specguardScreen" class="screen">
+    <div class="sg-wrap">
+      <div class="sg-intro">
+        <h1>SpecGuard</h1>
+        <p class="sub">A spec is only as good as the checks built from it. Can a model turn one requirement into a harness that
+          <b>rejects a buggy implementation</b> without <b>rejecting a correct one</b> that just behaves differently where the spec is silent?
+          16 tasks across the 8 verification-logic types of <a id="sgPaperLink" target="_blank" rel="noopener">SpecGuardBench</a>.
+          Every harness runs in a sandboxed worker in your browser.</p>
+      </div>
+
+      <section class="panel sg-controls">
+        <div class="sg-grid">
+          <label>Harness author <select id="sgSource"></select></label>
+          <label id="sgModelWrap">Model <select id="sgModel"></select></label>
+          <label>Reference shown to the author
+            <select id="sgRef">
+              <option value="gold">Correct implementation (normal)</option>
+              <option value="violating">Buggy implementation (mirror trap)</option>
+            </select>
+          </label>
+          <label>Tasks <select id="sgType"></select></label>
+        </div>
+        <p class="hint" id="sgSourceNote"></p>
+        <div class="row">
+          <button class="btn btn-primary" id="sgRun">Run benchmark</button>
+          <button class="btn btn-ghost" id="sgStop" hidden>Stop</button>
+        </div>
+        <div class="progress" id="sgProg" hidden><div></div><span></span></div>
+      </section>
+
+      <section id="sgResults" hidden>
+        <div class="panel sg-metrics" id="sgMetrics"></div>
+        <div class="sg-types" id="sgTypes"></div>
+        <h2 class="sect">Tasks <span class="muted">— open one to read, edit and re-run its harness</span></h2>
+        <div id="sgTasks"></div>
+      </section>
+
+      <h2 class="sect">Leaderboard <span class="muted">— this browser</span></h2>
+      <div class="panel">
+        <div class="sg-tablewrap"><table class="sg-table" id="sgBoard"></table></div>
+        <pre id="sgShare"></pre>
+        <div class="row">
+          <button class="btn btn-ghost" id="sgCopy">Copy share text</button>
+          <button class="btn btn-ghost" id="sgClear">Clear my rows</button>
+        </div>
+      </div>
+
+      <h2 class="sect">How it is scored</h2>
+      <div class="panel sg-how">
+        <p>Each task has one atomic spec, a reference implementation and a test that already passes. Hidden from the author:
+          a <b>correct</b> implementation, a <b>buggy</b> one that breaks the spec but still passes the existing test, and a
+          <b>valid alternative</b> that satisfies the spec but differs wherever the spec is silent (error messages, ordering, extra fields…).</p>
+        <p>A harness is <b>faithful</b> only if it rejects the buggy implementation <i>and</i> accepts both correct ones.
+          <b>Detection</b> = buggy one rejected. <b>False alarm</b> = a correct one rejected.</p>
+        <p>The <b>mirror trap</b> shows the buggy implementation as the reference. In the paper, agents then wrote checks that blessed the bug:</p>
+        <div class="sg-tablewrap"><table class="sg-table" id="sgMirrorTable"></table></div>
+      </div>
+
+      <footer class="foot">
+        A small JavaScript re-creation of SpecGuardBench (Python, 291 tasks, agents with tools); scores are not directly comparable with the paper's.
+        Task set validated by <code>npm run selftest</code>: the hand-written oracle is 100% faithful.
       </footer>
     </div>
   </div>

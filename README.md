@@ -52,6 +52,28 @@ The practice wording is a paraphrase of the paper and the scoring is a heuristic
 
 Walkthrough with screenshots: [How Bad Is Your Spec?](docs/epic/epic-score-article.md)
 
+### SpecGuard tab
+A spec is only as good as the checks built from it. The web app's **SpecGuard** tab
+([vishalmysore.github.io/zeespec/app/#specguard](https://vishalmysore.github.io/zeespec/app/#specguard)) is a small,
+in-browser re-creation of [SpecGuardBench](https://arxiv.org/abs/2610.16870): can a model turn one requirement into a
+validation harness that **rejects a buggy implementation** without **rejecting a correct one** that only differs where
+the spec is silent?
+
+- 16 JavaScript tasks, two for each of the paper's 8 verification-logic types (functional postcondition, input validation,
+  state postcondition, frame condition, interaction protocol, call order, interface signature, relational property).
+- Each task hides a correct implementation, a buggy one that still passes the existing test, and a valid alternative.
+  A harness is **faithful** only if it rejects the bug and accepts both correct ones.
+- Harnesses are written by a local model (WebLLM) or by three baselines that need no GPU: a hand-written oracle
+  (100% faithful), "mirror the reference" (0% — the failure the paper documents) and "replay the existing test" (0%).
+- **Mirror trap** mode shows the buggy implementation as the reference, as in the paper's §4 experiment.
+- Every harness runs in a throwaway, network-less worker with a time limit; you can edit any harness and re-run it.
+
+```bash
+cd web && npm run selftest   # checks every task the way the paper validates its tasks
+```
+
+Scores are not directly comparable with the paper (291 Python tasks, agents with tools).
+
 ## Workflow
 
 1. **Init**: Run `spec init` to get the templates.

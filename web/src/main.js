@@ -1,6 +1,7 @@
 import { DIMENSIONS } from './dimensions.js'
 import { WEBLLM_MODELS, loadModel, getModelStatus, cancelLoad, generate } from './llm.js'
 import { initEpic, refreshBuilderPane, scoreBuilderSpec } from './epic/ui.js'
+import { initSpecGuard } from './specguard/ui.js'
 
 // ── State ──────────────────────────────────────────────────────
 const state = {
@@ -24,7 +25,11 @@ const outputScreen  = document.getElementById('outputScreen')
 const epicScreen    = document.getElementById('epicScreen')
 const navBuilder    = document.getElementById('navBuilder')
 const navEpic       = document.getElementById('navEpic')
-let builderScreen   = setupScreen   // screen to return to from the EPIC tab
+const specguardScreen = document.getElementById('specguardScreen')
+const navSpecGuard  = document.getElementById('navSpecGuard')
+const TAB_SCREENS   = { '#epic': epicScreen, '#specguard': specguardScreen }
+const isTabScreen   = el => Object.values(TAB_SCREENS).includes(el)
+let builderScreen   = setupScreen   // screen to return to from the EPIC / SpecGuard tabs
 
 const modelSelect   = document.getElementById('modelSelect')
 const loadModelBtn  = document.getElementById('loadModelBtn')
@@ -122,24 +127,21 @@ function startWizard() {
 }
 
 function showScreen(el) {
-  for (const s of [setupScreen, wizardScreen, outputScreen, epicScreen]) s.classList.remove('active')
+  for (const s of [setupScreen, wizardScreen, outputScreen, epicScreen, specguardScreen]) s.classList.remove('active')
   el.classList.add('active')
-  if (el !== epicScreen) {
+  if (!isTabScreen(el)) {
     builderScreen = el
-    if (location.hash === '#epic') history.pushState(null, '', location.pathname + location.search)
+    if (TAB_SCREENS[location.hash]) history.pushState(null, '', location.pathname + location.search)
   }
-  navBuilder.classList.toggle('active', el !== epicScreen)
+  navBuilder.classList.toggle('active', !isTabScreen(el))
   navEpic.classList.toggle('active', el === epicScreen)
+  navSpecGuard.classList.toggle('active', el === specguardScreen)
 }
 
-// ── Routing: #epic shows the EPIC Score tab, anything else the builder ──
+// ── Routing: #epic → EPIC Score, #specguard → SpecGuard, anything else → the builder ──
 function route() {
-  if (location.hash === '#epic') {
-    refreshBuilderPane()
-    showScreen(epicScreen)
-  } else {
-    showScreen(builderScreen)
-  }
+  if (location.hash === '#epic') refreshBuilderPane()
+  showScreen(TAB_SCREENS[location.hash] ?? builderScreen)
 }
 window.addEventListener('hashchange', route)
 
@@ -476,6 +478,13 @@ startOverBtn.addEventListener('click', () => {
 // ── EPIC Score tab ─────────────────────────────────────────────
 initEpic({
   getBuilderSpec: () => state.builtSpec,
+  onModelStatus: (status, label) => {
+    setModelStatus(status, label)
+    if (status === 'ready') state.aiEnabled = true
+  },
+})
+// ── SpecGuard tab ──────────────────────────────────────────────
+initSpecGuard({
   onModelStatus: (status, label) => {
     setModelStatus(status, label)
     if (status === 'ready') state.aiEnabled = true

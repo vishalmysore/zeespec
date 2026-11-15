@@ -401,6 +401,7 @@ html, body {
 
 /* ── Utils ────────────────────────────────────────────────────── */
 .hidden { display: none !important; }
+[hidden] { display: none !important; }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
@@ -418,6 +419,10 @@ html, body {
 
 /* ── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  .header-inner { padding: 0 12px; gap: 10px; }
+  .logo-sub, .docs-link, #modelLabel { display: none; }
+  .app-nav { min-width: 0; overflow-x: auto; }
+  .app-nav a { white-space: nowrap; padding: 5px 8px; }
   .wizard-sidebar { display: none; }
   .wizard-main { padding: 20px; }
   .output-inner { padding: 24px 20px; }
