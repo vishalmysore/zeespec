@@ -1,4 +1,4 @@
-# AI Coding Agents Test the Code, Not the Spec
+# AI Coding Agents Write Tests That Bless Bugs
 
 *Ask a coding agent to write checks for a requirement and it will often copy what the existing code does instead. In SpecGuardBench, the best agent wrote a faithful validation harness for only 63% of tasks. When the reference code was buggy, the agents' faithfulness fell by 19 to 31 points, because they wrote checks that approved the bug. Here is a free, in-browser way to test any model for this.*
 
@@ -117,10 +117,6 @@ The page also explains how scoring works and repeats the paper's trap results, s
 
 ![How SpecGuard is scored](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/09-how-it-is-scored.png)
 
-It also works on a phone:
-
-![SpecGuard on a phone](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/11-specguard-mobile.png)
-
 ## Why this is useful
 
 - **It tests the right skill.** Most coding benchmarks ask whether an agent can write code that passes tests. This one asks whether it can write tests that judge code correctly, which is the skill that keeps agent-written code honest.
@@ -134,5 +130,7 @@ It also works on a phone:
 SpecGuard is a small re-creation, not the benchmark itself. It has 16 hand-built JavaScript tasks against the paper's 291 Python ones, and its harness authors are single local models rather than agents that can run tools. Its scores are not directly comparable with the paper's numbers, and the leaderboard labels them that way. The task set is checked automatically: every hidden implementation is confirmed to behave as intended, and the hand-written oracle scores 100%.
 
 ---
+
+*Disclaimer: this article is my own interpretation of the SpecGuardBench paper. SpecGuard is an independent, simplified re-creation, not the authors' benchmark or code. The tasks, baselines and scoring are my reading of their method, and any errors are mine. For the authors' exact method and results, see the paper.*
 
 **Try it:** [vishalmysore.github.io/zeespec/app/#specguard](https://vishalmysore.github.io/zeespec/app/#specguard) · **Source:** [github.com/vishalmysore/zeespec](https://github.com/vishalmysore/zeespec) · **Paper:** [SpecGuardBench (arXiv:2610.16870)](https://arxiv.org/abs/2610.16870) · **Companion:** [How Bad Is Your Spec? Scoring Specs for AI Coding Agents](https://github.com/vishalmysore/zeespec/blob/main/docs/epic/epic-score-article.md)
