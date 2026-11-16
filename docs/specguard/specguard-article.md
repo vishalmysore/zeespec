@@ -1,6 +1,6 @@
 # SpecGuard: When AI Coding Agents Write Tests That Approve Bugs
 
-*Ask a coding agent to write checks for a requirement and it will often copy what the existing code does instead. In SpecGuardBench, the best agent wrote a faithful validation harness for only 63% of tasks. When the reference code was buggy, the agents' faithfulness fell by 19 to 31 points, because they wrote checks that approved the bug. A 3-billion-parameter coding model running on a laptop's built-in graphics chip scored 0% on the same test. Here is a free, in-browser way to test any model for this.*
+*Ask a coding agent to write checks for a requirement and it will often copy what the existing code does instead. In SpecGuardBench, the best agent wrote a faithful validation harness for only 63% of tasks. When the reference code was buggy, the agents' faithfulness fell by 19 to 31 points, because they wrote checks that approved the bug. Here is a free, in-browser playground that shows the failure on small tasks, lets you edit a harness and watch it pass or fail, and lets you try small local models on the same test.*
 
 ![SpecGuard: a browser benchmark for spec-faithful validation harnesses](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/01-specguard-tab.png)
 
@@ -43,9 +43,9 @@ Then the authors set a trap. They showed the agents the **buggy** implementation
 
 Faithfulness fell by 19 to 31 points. The agents trusted the code they were shown more than the requirement they were given.
 
-## The solution: SpecGuard, a benchmark that runs in your browser
+## The solution: SpecGuard, a playground that runs in your browser
 
-**SpecGuard** is a small, free re-creation of SpecGuardBench that runs entirely in a browser tab. It ships as a tab in [ZeeSpec](https://vishalmysore.github.io/zeespec/app/#specguard), an open-source spec builder for AI coding agents, next to the EPIC Score tab that grades the spec itself.
+**SpecGuard** is a small, free re-creation of SpecGuardBench that runs entirely in a browser tab. Treat it as a hands-on way to see the failure and to practise writing faithful checks, not as a replacement for the paper's benchmark. It ships as a tab in [ZeeSpec](https://vishalmysore.github.io/zeespec/app/#specguard), an open-source spec builder for AI coding agents, next to the EPIC Score tab that grades the spec itself.
 
 It has **16 JavaScript tasks**, two for each of the paper's eight types of verification logic:
 
@@ -69,96 +69,108 @@ You pick who writes the harnesses:
 
 Every harness runs in a separate background worker with no network access and a time limit of a few seconds, so model-written code can't do anything harmful or hang the page.
 
-## What the baselines show
+## One task, up close
 
-### The hand-written oracle: 100%
+Here is the whole slugify task. The harness author sees the requirement, the reference implementation and the existing test:
 
-A harness that checks only what the requirement says is faithful on all 16 tasks. This confirms that every task can be solved: each one has a correct answer, and the scoring recognises it.
+```js
+// Spec: slugify(title) MUST return a string that contains only lowercase letters a–z,
+// digits 0–9 and single hyphens, with no leading or trailing hyphen.
 
-![Hand-written oracle: 100% faithful, 100% detection, 0% false alarms](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/02-oracle-metrics.png)
+// Reference implementation (shown to the author)
+const slugify = (title) => String(title).toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '')
 
-### "Mirror the reference": 0%
+// Existing test (already passes)
+assertEqual(slugify('Hello World'), 'hello-world')
+```
 
-This baseline does the easy thing described above: it asserts that the code behaves exactly like the reference. It catches **every** bug, which looks good. But it also rejects **every** valid alternative, so not one of its harnesses is faithful.
+Hidden from the author are a buggy version and a valid alternative:
 
-![Mirror the reference: 0% faithful, 100% detection, 100% false alarms](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/03-mirror-metrics.png)
+```js
+// Buggy: strips a leading hyphen but not a trailing one. Still passes the existing test.
+const buggy = (title) => String(title).toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+/, '')                      // 'Hello!' → 'hello-'  (breaks the spec)
 
-The breakdown by type shows the same pattern in all eight categories:
+// Valid alternative: transliterates accents instead of dropping them.
+const alternative = (title) => String(title).normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).join('-')
+                                           // 'Café au lait' → 'cafe-au-lait' (reference gives 'caf-au-lait')
+```
 
-![Results by verification-logic type](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/04-mirror-by-type.png)
+A faithful harness checks the rule and nothing else, so it rejects the buggy version and accepts the other two:
 
-Open any task to see why. Here is the slugify task. The copied harness correctly rejects the bug (`"Hello!"` becomes `hello-`, with a trailing hyphen). It also rejects the valid alternative, because `cafe-au-lait` isn't what the reference returned, even though the requirement never mentions accents.
+```js
+function checkCase(target, c) {
+  const s = target(...c.args)
+  assert(/^[a-z0-9]+(-[a-z0-9]+)*$/.test(s) || s === '', 'only a–z, 0–9 and single inner hyphens')
+}
+```
+
+A harness that copies the reference (`assertEqual(target(x), reference(x))`) rejects the bug too. But it also rejects the valid alternative, because `cafe-au-lait` isn't what the reference returned, even though the spec never mentions accents. In the app you can open any task, see each verdict and the reason for it, edit the harness and click **Re-run with my edits**:
 
 ![Task detail: the harness, and a verdict for each hidden implementation](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/05-task-detail.png)
 
-The harness is editable. You can fix it, click **Re-run with my edits** and watch the false alarm disappear.
+## What the baselines show
 
-### The mirror trap: the bug becomes the rule
+Three baselines need no model and show that the scoring works:
 
-Switch "Reference shown to the author" to **Buggy implementation (mirror trap)** and run the same baseline. Now it catches **0%** of the bugs, because the bug is what it copied, and it still rejects every correct implementation. This is the paper's trap experiment in its most extreme form: a harness that copies the code can never be better than the code.
+| Baseline (16 tasks) | Faithful | Catches the bug | Rejects correct code |
+|---|---|---|---|
+| Hand-written oracle: checks only what the spec says | **100%** | 100% | 0% |
+| Mirror the reference: "behave exactly like the reference" | **0%** | 100% | 100% |
+| Mirror the reference, with the **buggy** reference shown | **0%** | 0% | 100% |
+| Replay the existing test | **0%** | 0% | 0% |
 
-![Mirror trap: 0% detection, 100% false alarms](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/06-mirror-trap-metrics.png)
+- **The oracle** confirms every task can be solved and the scoring recognises a correct answer.
+- **Mirroring** catches every bug, which looks good, but rejects every valid alternative. Show it the buggy reference and it catches nothing, because the bug is what it copied. A harness that copies the code can never be better than the code.
+- **Replaying the existing test** catches nothing, because by design every buggy version passes it. "The tests pass" proves nothing here.
 
-### Replaying the existing test: 0%
+## A small model, as a demonstration
 
-The last baseline shows why "the tests pass" proves nothing here. By design, every buggy implementation passes the existing test, so re-running it catches nothing.
+What happens when a model writes the harness itself? I ran **Qwen 2.5 Coder 3B**, a small code-tuned model, through all 16 tasks in the browser on a laptop's built-in Intel graphics chip. One run took about 25 minutes. This is a demonstration of the failure, not a benchmark score. A 3B model writing code in one attempt, with no chance to run it and fix mistakes, isn't comparable to the paper's frontier agents, which can execute code and iterate.
 
-![Replay the existing test: 0% detection](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/07-replay-test-metrics.png)
+| Qwen 2.5 Coder 3B, 16 tasks | Harness didn't run | Ran | Faithful | Rejected correct code | Accepted the bug |
+|---|---|---|---|---|---|
+| Correct reference shown | 6 | 10 | **0** | 8 | 3 |
+| Buggy reference shown (mirror trap) | 3 | 13 | **0** | 11 | 4 |
 
-## What a real model does
+Six harnesses failing to run measures the model's one-shot JavaScript, not its reading of the spec. The other 10 are the interesting part, and not one of them was faithful. Eight rejected correct code, and the other two accepted everything, bug included.
 
-Baselines show the scoring works. The real question is what a model does when it writes the harness itself. I ran **Qwen 2.5 Coder 3B**, a code-tuned model, through all 16 tasks on a laptop's built-in Intel graphics chip, entirely in the browser. Each harness took about one to five minutes to write.
+The model's slugify harness shows the most common failure:
 
-| Qwen 2.5 Coder 3B (16 tasks) | Faithful | Catches the bug | Rejects correct code | Harness didn't run |
-|---|---|---|---|---|
-| Correct reference shown | **0%** | 43.8% | 50.0% | 6 of 16 |
-| Buggy reference shown (mirror trap) | **0%** | 56.3% | 68.8% | 3 of 16 |
+```js
+// Written by Qwen 2.5 Coder 3B
+assert(/^[a-z0-9]+$/.test(result), 'Result must contain only lowercase letters and digits')
+```
 
-**Not one faithful harness.** And look at how it fails. With the correct reference shown, every bug it caught came with a rejected correct implementation. It never once checked the requirement and only the requirement.
-
-![Qwen 2.5 Coder 3B: 0% faithful, 43.8% detection, 50% false alarms](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/12-model-metrics.png)
-
-The slugify task shows why. The model wrote a reasonable-looking harness, then asserted that the result must contain *only lowercase letters and digits*. The spec says hyphens are allowed; the model dropped that clause. So its harness rejects the bug, but it also rejects the correct implementation and the valid alternative, because `hello-world` contains a hyphen.
+The spec allows single hyphens, and the model dropped that clause. So the harness rejects the bug, but it also rejects the correct implementation and the valid alternative, because `hello-world` contains a hyphen. That isn't copying the reference. It's misreading the spec, and it produces the same result: a check that fails good code.
 
 ![The model's slugify harness rejects all three implementations](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/14-model-task-detail.png)
 
-The other failures fall into three groups:
+The mirror trap produced one case with the paper's pattern. On the top-k task, the model's harness accepted all three versions when it was shown the correct reference. Shown the buggy reference, it accepted the bug and rejected both correct versions, exactly what you'd expect from a harness that trusts the code it was shown. With overall faithfulness already at 0%, though, the trap can't show a drop, and on 16 tasks the other numbers move by several points from run to run.
 
-- **Inventing rules.** On the top-k task it made up a behaviour for a negative `k` that the spec never states, then failed every implementation that didn't match its guess.
-- **Checking too little.** On two tasks the harness accepted everything, the bug included.
-- **Code that doesn't run.** Six harnesses crashed before checking anything at all.
+Llama 3.2 1B, the smallest model on offer, couldn't take part. It wrote test-framework code (`describe`, `it`) instead of the harness it was asked for, and 15 of its 16 harnesses didn't run.
 
-With the buggy reference shown, the result was still 0% faithful:
+## Try it yourself
 
-![Mirror trap: still 0% faithful](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/15-model-mirror-trap-metrics.png)
+Start small. In **Tasks**, pick one type (two tasks). With the hand-written oracle or the mirror baseline it finishes instantly. With a local model it takes a few minutes. Open a task, read each verdict, change the harness and click **Re-run with my edits**: that loop is the quickest way to get a feel for what "faithful" means.
 
-The trap can't show a drop when there is nothing to drop from. The detection and false-alarm rates moved in both directions between the two runs, which on 16 tasks is within normal run-to-run variation. The finding is simpler: at this size, the model doesn't separate *what the spec requires* from *what the code it was shown happens to do*.
+To try a model on all 16 tasks, choose **Local model**, pick one and click **Run benchmark**, then run it again with the mirror trap on. Allow 20–30 minutes per run on a laptop GPU. Each run adds a row to a leaderboard kept in your browser. The paper's results sit below it for reference and are labelled as not directly comparable.
 
-The smallest model on offer, Llama 3.2 1B, couldn't take part at all. It wrote test-framework code (`describe`, `it`) instead of the harness it was asked for, and 15 of its 16 harnesses failed to run.
+![Leaderboard: a local model's rows above the paper's results](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/16-model-leaderboard.png)
 
-## Put your model on the leaderboard
+## The takeaway
 
-Choose **Local model**, pick a model and click **Run benchmark**. Each run adds a row to a leaderboard kept in your browser, shown next to the paper's results for comparison. Then run it again with the mirror trap switched on. The gap between the two runs shows how much your model relies on the reference code instead of the requirement.
+Whether a person or an agent writes the tests, apply one rule when you review them: **for every assertion, point to the sentence in the spec that requires it.** If you can't, the assertion is checking the current code, not the requirement. Delete it, or add the missing sentence to the spec. In SpecGuard, both mirroring and the small model's over-strict checks fail that rule.
 
-![Leaderboard: Qwen 2.5 Coder 3B next to the paper's frontier agents](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/16-model-leaderboard.png)
-
-**Copy share text** gives you a one-line summary of your result to post.
-
-The page also explains how scoring works and repeats the paper's trap results, so anyone you share it with can check the method:
-
-![How SpecGuard is scored](https://raw.githubusercontent.com/vishalmysore/zeespec/main/docs/specguard/images/09-how-it-is-scored.png)
-
-## Why this is useful
-
-- **It tests the right skill.** Most coding benchmarks ask whether an agent can write code that passes tests. This one asks whether it can write tests that judge code correctly, which is the skill that keeps agent-written code honest.
-- **It makes a quiet failure visible.** A harness copied from the code looks thorough and passes on day one. The cost shows up later, as blocked valid changes and approved bugs. The mirror trap shows that cost in seconds.
-- **It gives you a better instruction for your agents.** If the requirement doesn't say it, don't assert it. Check error messages, ordering and extra fields only when the spec asks for them.
-- **It's private and free.** Everything runs in your browser. Models run on your own GPU, and harnesses run in a sandbox with no network access.
-- **It pairs with spec scoring.** EPIC Score, in the next tab, checks whether a spec is clear enough to build from. SpecGuard checks whether a model can turn a requirement into checks without copying the code. Vague specs leave room for copying, and precise ones make copying easy to spot.
+It works in the other direction too. If a sentence in the spec has no assertion, the harness can't catch a bug there. That's the gap the buggy implementations in these tasks slip through.
 
 ## Limits
 
-SpecGuard is a small re-creation, not the benchmark itself. It has 16 hand-built JavaScript tasks against the paper's 291 Python ones, and its harness authors are single local models rather than agents that can run tools. The browser models are also far smaller than the frontier agents in the paper, so a 0% here measures a 3B model in one attempt per task, not what coding agents in general can do. With only 16 tasks, results move by several points from one run to the next. Its scores are not directly comparable with the paper's numbers, and the leaderboard labels them that way. The task set is checked automatically: every hidden implementation is confirmed to behave as intended, and the hand-written oracle scores 100%.
+SpecGuard is a small re-creation, not the benchmark itself. It has 16 hand-built JavaScript tasks against the paper's 291 Python ones. Its harness authors are single local models writing code in one attempt, with no retry. A harness that fails to run counts as unfaithful, and the app reports those separately. No frontier model has been run on these 16 tasks, so there's no direct calibration of how hard they are compared with the paper's. The task set itself is checked automatically: every hidden implementation is confirmed to behave as intended, and the hand-written oracle scores 100%.
 
 ---
 
