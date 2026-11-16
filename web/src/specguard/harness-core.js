@@ -114,9 +114,10 @@ export function implsOf(task) {
 export function summarize(task, results) {
   const impls = implsOf(task)
   const by = Object.fromEntries(impls.map((im, i) => [im.role, results[i]]))
+  // A harness that never runs neither catches the bug nor raises a false alarm; it is counted as `broken`.
   const broken = results.every(r => r.verdict === 'broken')
-  const detected = by.violating.verdict !== 'accept'
-  const falseAlarm = impls.some((im, i) => im.shouldAccept && results[i].verdict !== 'accept')
+  const detected = by.violating.verdict === 'reject'
+  const falseAlarm = !broken && impls.some((im, i) => im.shouldAccept && results[i].verdict !== 'accept')
   return { detected, falseAlarm, faithful: detected && !falseAlarm, broken }
 }
 

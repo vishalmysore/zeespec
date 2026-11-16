@@ -2,6 +2,7 @@ export const WEBLLM_MODELS = [
   { id: 'Llama-3.2-1B-Instruct-q4f32_1-MLC',  name: 'Llama 3.2 1B  (~0.9 GB) — fastest' },
   { id: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC',  name: 'Qwen 2.5 1.5B (~1.1 GB) — fast' },
   { id: 'gemma-2-2b-it-q4f16_1-MLC',           name: 'Gemma 2 2B   (~1.5 GB) — balanced' },
+  { id: 'Qwen2.5-Coder-3B-Instruct-q4f32_1-MLC', name: 'Qwen 2.5 Coder 3B (~2 GB) — code' },
   { id: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',  name: 'Llama 3.2 3B  (~2.0 GB) — good' },
   { id: 'Phi-3.5-mini-instruct-q4f16_1-MLC',  name: 'Phi-3.5 Mini  (~2.2 GB) — best quality' },
 ]
@@ -57,7 +58,8 @@ function _handleWorkerMessage(e) {
       const err = new Error(msg.error)
       _onProgress?.({ type: 'error', error: msg.error })
       if (_loadReject) { _status = 'error'; _loadReject(err);  _loadResolve = _loadReject = null }
-      if (_genReject)  { _genReject(err);   _genResolve  = _genReject  = null }
+      // A failed generation (e.g. GPU device lost) can leave the engine unusable: force a reload next time.
+      if (_genReject)  { _status = 'error'; _genReject(err);   _genResolve  = _genReject  = null }
       break
     }
     case 'cancelled':

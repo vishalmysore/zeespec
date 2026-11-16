@@ -102,9 +102,16 @@ $('#sgRun').onclick = async () => {
       if (state.stop) break
       progress(i / tasks.length, `${source === 'model' ? 'Writing & running' : 'Running'} harness ${i + 1}/${tasks.length}: ${task.title}`)
       const refSrc = task[ref]
+      // A failed generation (e.g. the GPU device was lost) says nothing about the model's harness:
+      // stop the whole run instead of scoring the remaining tasks as broken.
+      let h
+      try {
+        h = await harnessFor(task, source, refSrc)
+      } catch (err) {
+        throw new Error(`Stopped at task ${i + 1}/${tasks.length}: the model failed to generate (${err.message}). No score was saved. Reload the page and run again, or pick a smaller model.`)
+      }
       let row
       try {
-        const h = await harnessFor(task, source, refSrc)
         row = { task, refSrc, code: h.code, raw: h.raw, latencyMs: h.latencyMs, ...(await evaluate(task, h.code)) }
       } catch (err) {
         row = { task, refSrc, code: '', error: err.message, detected: false, falseAlarm: false, faithful: false, broken: true, results: [] }
@@ -116,6 +123,7 @@ $('#sgRun').onclick = async () => {
     if (state.rows.size) saveToBoard()
   } catch (err) {
     progress(0, err.message)
+    if (source === 'model') hooks.onModelStatus('error', 'Error')
   } finally {
     state.running = false
     $('#sgRun').disabled = false
